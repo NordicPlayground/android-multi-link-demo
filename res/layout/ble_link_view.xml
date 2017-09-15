@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/img_type"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/icon2"
+        />
+
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Thingy:52"
+        android:textSize="14dp"
+        android:padding="2dp"
+        android:textStyle="bold|italic"/>
+
+    <TextView
+        android:id="@+id/nameLabel"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/img_type"
+        android:padding="2dp"
+        android:text="Name"
+        android:textSize="12dp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nameLabel"
+        android:layout_alignLeft="@id/nameLabel"
+        android:padding="2dp"
+        android:text="MyThingy"
+        android:textSize="12dp" />
+
+    <TextView
+        android:id="@+id/connHandleLabel"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/nameLabel"
+        android:padding="2dp"
+        android:text="Conn Handle"
+        android:textSize="12dp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/connHandle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/connHandleLabel"
+        android:layout_alignLeft="@id/connHandleLabel"
+        android:padding="2dp"
+        android:text="0"
+        android:textSize="12dp" />
+
+</RelativeLayout>

@@ -1,4 +1,4 @@
-package com.nordicsemi.IntensityLightControl.gui;
+package com.nordicsemi.MultiLinkDemo.gui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -13,7 +13,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.nordicsemi.IntensityLightControl.R;
+import com.nordicsemi.MultiLinkDemo.R;
 
 /**
  * Created by too1 on 06.02.14.

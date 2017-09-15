@@ -1,4 +1,4 @@
-package com.nordicsemi.IntensityLightControl;
+package com.nordicsemi.MultiLinkDemo;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -56,9 +56,9 @@ public class LedButtonService extends Service {
     public static final UUID FIRMWARE_REVISON_UUID = UUID.fromString("00002a26-0000-1000-8000-00805f9b34fb");
     public static final UUID DIS_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
 
-    public static final UUID RX_SERVICE_UUID = UUID.fromString("626c0001-efcd-454e-b920-dd2e19450e90");
-    public static final UUID RX_CHAR_UUID = UUID.fromString("626c0002-efcd-454e-b920-dd2e19450e90");
-    public static final UUID TX_CHAR_UUID = UUID.fromString("626c0003-efcd-454e-b920-dd2e19450e90");
+    public static final UUID RX_SERVICE_UUID = UUID.fromString("3e520001-1368-b682-4440-d7dd234c45bc");
+    public static final UUID RX_CHAR_UUID = UUID.fromString("3e520002-1368-b682-4440-d7dd234c45bc");
+    public static final UUID TX_CHAR_UUID = UUID.fromString("3e520003-1368-b682-4440-d7dd234c45bc");
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.

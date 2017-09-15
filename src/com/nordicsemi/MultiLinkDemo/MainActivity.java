@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.nordicsemi.IntensityLightControl;
+package com.nordicsemi.MultiLinkDemo;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
-import com.nordicsemi.IntensityLightControl.gui.IntensityLedButton;
+import com.nordicsemi.MultiLinkDemo.gui.BleDeviceView;
+import com.nordicsemi.MultiLinkDemo.gui.IntensityLedButton;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -39,40 +41,42 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements RadioGroup.OnCheckedChangeListener, IntensityLedButton.OnLedChangeListener {
+public class MainActivity extends Activity implements RadioGroup.OnCheckedChangeListener {
     private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private static final int UART_PROFILE_READY = 10;
-    public static final String TAG = "lbs_tag";
+    public static final String TAG = "mld_tag";
     private static final int UART_PROFILE_CONNECTED = 20;
     private static final int UART_PROFILE_DISCONNECTED = 21;
-    private static final int STATE_OFF = 10;
-    private static final int SETTINGS_ACTIVITY = 100;
 
-    private static final String FONT_LABEL_APP_NORMAL = "<font color='#EE0000'>";
-    private static final String FONT_LABEL_APP_ERROR = "<font color='#EE0000'>";
-    private static final String FONT_LABEL_PEER_NORMAL = "<font color='#EE0000'>";
-    private static final String FONT_LABEL_PEER_ERROR = "<font color='#EE0000'>";
     public enum AppLogFontType {APP_NORMAL, APP_ERROR, PEER_NORMAL, PEER_ERROR};
     private String mLogMessage = "";
 
-    TextView mRemoteRssiVal, mTextViewLog;
-    RadioGroup mRg;
+    //TextView mTextViewLog;
+    ListView mBleDeviceListView;
     private int mState = UART_PROFILE_DISCONNECTED;
-    private LedButtonService mService = null;
-    private BluetoothDevice mDevice = null;
-    private BluetoothAdapter mBtAdapter = null;
-    private Button btnConnectDisconnect;
-    private IntensityLedButton btnLed;
-    private byte []mUartData = new byte[6];
+    private LedButtonService    mService = null;
+    private BluetoothDevice     mDevice = null;
+    private BluetoothAdapter    mBtAdapter = null;
+    private Button              btnConnectDisconnect, btnTest;
+    private BleLinkManager      mBleLinkManager;
 
+    int index = 0;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,12 +88,12 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
             finish();
             return;
         }
+        mBleLinkManager = new BleLinkManager(getApplicationContext());
         btnConnectDisconnect    = (Button) findViewById(R.id.btn_select);
-        btnLed = (IntensityLedButton) findViewById(R.id.ledbutton_led01);
-        btnLed.setLedChangedListener(this);
-        mTextViewLog = (TextView)findViewById(R.id.textViewLog);
+        btnTest = (Button)findViewById(R.id.btnTest);
+        mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
+        mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
         service_init();
-        for(int i = 0; i < 6; i++) mUartData[i] = 0;
 
         // Handler Disconnect & Connect button
         btnConnectDisconnect.setOnClickListener(new View.OnClickListener() {
@@ -115,26 +119,20 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                 }
             }
         });
-        // Set initial UI state
-        //mRgbLedButton.setRgbChangedListener(this);
-    }
 
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Disconnect button pressed
 
-    @Override
-    public void onIntensityChanged(IntensityLedButton sender, boolean ledOn, float ledIntensity) {
-        byte[] uartData = new byte[6];
-        writeToLog("Set intensity: " + String.valueOf(ledIntensity), AppLogFontType.APP_NORMAL);
-        if(mService.isConnected()){
-            String uartString;
-            int intensity = (int)(ledIntensity * 255.0f);
-            uartData[0] = (byte)(ledOn ? '1' : '0');
-            uartData[1] = (byte)'-';
-            uartData[2] = (byte)(intensity / 100 + '0');
-            uartData[3] = (byte)((intensity / 10) % 10 + '0');
-            uartData[4] = (byte)(intensity % 10 + '0');
-            uartData[5] = 0;
-            mService.writeRXCharacteristic(uartData);
-        }
+                if (mService != null && mService.isConnected()) {
+                    //String testString = "JALLA!!";
+                    //mService.writeRXCharacteristic(testString.getBytes());
+                }
+                mBleLinkManager.addDebugItem();
+
+            }
+        });
     }
 
     //UART service connected/disconnected
@@ -164,7 +162,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     };
 
     private void writeToLog(String message, AppLogFontType msgType){
-        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
+        /*String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
         String newMessage = currentDateTimeString + " - " + message;
         String fontHtmlTag;
         switch(msgType){
@@ -185,7 +183,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                 break;
         }
         mLogMessage = fontHtmlTag + newMessage + "</font>" + "<br>" + mLogMessage;
-        mTextViewLog.setText(Html.fromHtml(mLogMessage));
+        mTextViewLog.setText(Html.fromHtml(mLogMessage));*/
     }
 
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
@@ -199,7 +197,6 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                     public void run() {
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
-                        btnLed.setEnabled(true);
                         btnConnectDisconnect.setText("Disconnect");
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
@@ -213,10 +210,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_DISCONNECT_MSG");
                         btnConnectDisconnect.setText("Connect");
-                        btnLed.setEnabled(false);
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;
-                        mUartData[0] = mUartData[1] = mUartData[2] = mUartData[3] = mUartData[4] = mUartData[5] = 0;
                         mService.close();
                     }
                 });
@@ -234,13 +229,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                  runOnUiThread(new Runnable() {
                      public void run() {
                          try {
-                             String text = new String(txValue, "UTF-8");
-                             if(text.charAt(0) == '!'){
-                                 writeToLog(text.substring(1, text.length()), AppLogFontType.PEER_ERROR);
-                             }
-                             else {
-                                 writeToLog(text, AppLogFontType.PEER_NORMAL);
-                             }
+                             mBleLinkManager.processBlePacket(txValue);
                          } catch (Exception e) {
                              Log.e(TAG, e.toString());
                          }

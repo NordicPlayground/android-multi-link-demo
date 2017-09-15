@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nordicsemi.IntensityLightControl;
+package com.nordicsemi.MultiLinkDemo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

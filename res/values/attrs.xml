@@ -8,6 +8,14 @@
     <attr name="textColor" format="color"/>
     <attr name="backgroundDrawable" format="reference"/>
 
+    <declare-styleable name="BleDeviceView">
+        <attr name="deviceName" format="string"/>
+        <attr name="connHandleLabel" format="string"/>
+        <attr name="connHandleValue" format="integer"/>
+        <attr name="buttonStatusLabel" format="string"/>
+        <attr name="buttonStatusValue" format="string"/>
+        <attr name="ledStatusLabel" format="string"/>
+    </declare-styleable>
 
     <declare-styleable name="CheckButton">
         <attr name="text"/>

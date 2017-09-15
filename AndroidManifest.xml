@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nordicsemi.IntensityLightControl"
+    package="com.nordicsemi.MultiLinkDemo"
     android:versionCode="43"
     android:versionName="2.0" >
 

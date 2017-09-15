@@ -1,4 +1,4 @@
-package com.nordicsemi.IntensityLightControl;
+package com.nordicsemi.MultiLinkDemo;
 
 
 import android.app.Activity;
