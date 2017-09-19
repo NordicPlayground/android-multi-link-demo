@@ -3,6 +3,7 @@
     xmlns:custom="http://schemas.android.com/apk/res/com.nordicsemi.MultiLinkDemo"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#FF999999">
 
@@ -38,7 +39,8 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom">
+        android:layout_weight="5"
+        android:layout_gravity="top">
 
 
         <ListView
@@ -47,4 +49,34 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <com.nordicsemi.MultiLinkDemo.gui.RgbLedButton
+            android:id="@+id/rgbLedButton1"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            app:rgbicon_drawable="@drawable/rgb_wheel_white"
+            app:rgbselector_drawable="@drawable/rgb_selector"
+
+            app:rbgselector_size="20dp"
+            app:text=""
+            app:textHeight="3dp"
+            android:padding="10dp"/>
+
+        <com.nordicsemi.MultiLinkDemo.gui.IntensityLedButton
+            android:id="@+id/intensityLedButton1"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            app:backgroundDrawable="@drawable/intensitybtn_bck"
+            app:buttonOffDrawable="@drawable/intensitybtn_led_off"
+            app:buttonOnDrawable="@drawable/intensitybtn_led_on"
+            app:intensitySelectorDrawable="@drawable/intensitybtn_selector"
+            app:intensitySelectorWidth="0.15"
+            android:padding="1dp"/>
+
+    </LinearLayout>
 </LinearLayout>

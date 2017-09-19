@@ -41,4 +41,26 @@
     	<item name="android:textColor">@color/black</item>
     </style>
 
+    <style name="FontBleDeviceLabel" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#888888</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
+    <style name="FontBleDeviceField" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#000000</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:textStyle"></item>
+    </style>
+
+    <style name="FontBleDeviceFieldOn" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#176f11</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
 </resources>

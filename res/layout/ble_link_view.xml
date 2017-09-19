@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:id="@+id/bleDeviceListMainLayout"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/ble_device_list_background">
 
     <ImageView
         android:id="@+id/img_type"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/icon2"
+        android:background="@drawable/dev_thingy"
         />
 
     <TextView
@@ -14,51 +16,87 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="Thingy:52"
-        android:textSize="14dp"
+        android:layout_alignParentBottom="true"
+        android:text=""
+        android:textSize="12dp"
         android:padding="2dp"
-        android:textStyle="bold|italic"/>
+        android:textStyle="italic"/>
 
     <TextView
         android:id="@+id/nameLabel"
+        android:textAppearance="@style/FontBleDeviceLabel"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/img_type"
         android:padding="2dp"
-        android:text="Name"
-        android:textSize="12dp"
-        android:textStyle="bold"/>
+        android:text="Name"/>
 
     <TextView
         android:id="@+id/name"
+        android:textAppearance="@style/FontBleDeviceField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nameLabel"
         android:layout_alignLeft="@id/nameLabel"
         android:padding="2dp"
-        android:text="MyThingy"
-        android:textSize="12dp" />
+        android:text="MyThingy"/>
 
     <TextView
         android:id="@+id/connHandleLabel"
-        android:layout_width="80dp"
+        android:textAppearance="@style/FontBleDeviceLabel"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/nameLabel"
         android:padding="2dp"
-        android:text="Conn Handle"
-        android:textSize="12dp"
-        android:textStyle="bold"/>
+        android:text="ID" />
 
     <TextView
         android:id="@+id/connHandle"
+        android:textAppearance="@style/FontBleDeviceField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/connHandleLabel"
         android:layout_alignLeft="@id/connHandleLabel"
         android:padding="2dp"
-        android:text="0"
-        android:textSize="12dp" />
+        android:text="0"/>
+
+    <TextView
+        android:id="@+id/btnStateLabel"
+        android:textAppearance="@style/FontBleDeviceLabel"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/connHandleLabel"
+        android:padding="2dp"
+        android:text="Button" />
+
+    <TextView
+        android:id="@+id/btnState"
+        android:textAppearance="@style/FontBleDeviceField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnStateLabel"
+        android:layout_alignLeft="@id/btnStateLabel"
+        android:padding="2dp"
+        android:text="Off" />
+
+    <TextView
+        android:id="@+id/ledStateLabel"
+        android:textAppearance="@style/FontBleDeviceLabel"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/btnStateLabel"
+        android:padding="2dp"
+        android:text="LED" />
+
+    <ImageView
+        android:id="@+id/ledState"
+        android:textAppearance="@style/FontBleDeviceField"
+        android:layout_width="30dp"
+        android:layout_height="17dp"
+        android:layout_below="@id/ledStateLabel"
+        android:layout_alignLeft="@id/ledStateLabel"
+        android:padding="2dp"
+        android:background="@drawable/led_status_box"/>
 
 </RelativeLayout>

@@ -17,12 +17,11 @@
 package com.nordicsemi.MultiLinkDemo;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 
-import com.nordicsemi.MultiLinkDemo.gui.BleDeviceView;
 import com.nordicsemi.MultiLinkDemo.gui.IntensityLedButton;
+import com.nordicsemi.MultiLinkDemo.gui.RgbLedButton;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -40,20 +39,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Html;
-import android.text.Layout;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.TableLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements RadioGroup.OnCheckedChangeListener {
@@ -74,6 +65,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private BluetoothDevice     mDevice = null;
     private BluetoothAdapter    mBtAdapter = null;
     private Button              btnConnectDisconnect, btnTest;
+    private IntensityLedButton  mButtonIntensity;
+    private RgbLedButton        mButtonRgb;
     private BleLinkManager      mBleLinkManager;
 
     int index = 0;
@@ -91,8 +84,19 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         mBleLinkManager = new BleLinkManager(getApplicationContext());
         btnConnectDisconnect    = (Button) findViewById(R.id.btn_select);
         btnTest = (Button)findViewById(R.id.btnTest);
+        mButtonIntensity = (IntensityLedButton)findViewById(R.id.intensityLedButton1);
+        mButtonRgb = (RgbLedButton)findViewById(R.id.rgbLedButton1);
         mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
+        mBleDeviceListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        mBleDeviceListView.setItemsCanFocus(false);
+
+        mBleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mBleLinkManager.itemClicked(i);
+            }
+        });
         service_init();
 
         // Handler Disconnect & Connect button
@@ -120,6 +124,20 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
             }
         });
 
+        mButtonIntensity.setLedChangedListener(new IntensityLedButton.OnLedChangeListener() {
+            @Override
+            public void onIntensityChanged(IntensityLedButton sender, boolean ledOn, float ledIntensity) {
+                mBleLinkManager.setLedStateIntensityAll(ledOn, ledIntensity);
+            }
+        });
+
+        mButtonRgb.setRgbChangedListener(new RgbLedButton.OnRgbChangedListener() {
+            @Override
+            public void onRgbChanged(RgbLedButton sender, float r, float g, float b) {
+                mBleLinkManager.setLedRgbAll(r, g, b);
+            }
+        });
+
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,6 +157,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
             mService = ((LedButtonService.LocalBinder) rawBinder).getService();
+            mBleLinkManager.setOutgoingService(mService);
             Log.d(TAG, "onServiceConnected mService= " + mService);
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -147,8 +166,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         }
 
         public void onServiceDisconnected(ComponentName classname) {
-       ////     mService.disconnect(mDevice);
-        		mService = null;
+            mBleLinkManager.setOutgoingService(null);
+            mService = null;
         }
     };
 
@@ -213,6 +232,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
+                        mBleLinkManager.clearBleDevices();
                     }
                 });
             }

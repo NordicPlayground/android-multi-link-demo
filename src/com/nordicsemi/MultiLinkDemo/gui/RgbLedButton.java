@@ -40,7 +40,7 @@ public class RgbLedButton extends View {
         try{
             mEnabled             = a.getBoolean(R.styleable.RgbLedButton_enabled, true);
             mText                = a.getString(R.styleable.RgbLedButton_text);
-            mTextHeight          = a.getDimension(R.styleable.RgbLedButton_textHeight, 0.0f);
+            mTextHeight          = a.getDimension(R.styleable.RgbLedButton_textHeight, 5.0f);
             mTextOffsetLeft      = a.getDimension(R.styleable.RgbLedButton_textOffsetLeft, 20.0f);
             mTextColor           = a.getColor(R.styleable.RgbLedButton_textColor, Color.WHITE);
             mBackgroundDrawable  = a.getDrawable(R.styleable.RgbLedButton_backgroundDrawable);
@@ -101,7 +101,9 @@ public class RgbLedButton extends View {
         float ypad = (float)(getPaddingTop() + getPaddingBottom());
         mRegion.set(getLeft(), getTop(), (float) w, (float) h);
         mRegionPadded.set(getPaddingLeft(), getPaddingTop(), (float) w - getPaddingRight(), (float) h - getPaddingBottom());
-        mBackgroundDrawable.setBounds((int) mRegionPadded.left, (int) mRegionPadded.top, (int) mRegionPadded.right, (int) mRegionPadded.bottom);
+        if(mBackgroundDrawable != null) {
+            mBackgroundDrawable.setBounds((int) mRegionPadded.left, (int) mRegionPadded.top, (int) mRegionPadded.right, (int) mRegionPadded.bottom);
+        }
 
         // Set RGB Icon region
         float mIconWidth = Math.min(mRegionPadded.width(), mRegionPadded.height() - mTextHeight);
@@ -118,7 +120,9 @@ public class RgbLedButton extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mBackgroundDrawable.draw(canvas);
+        if(mBackgroundDrawable != null) {
+            mBackgroundDrawable.draw(canvas);
+        }
         mRgbIconDrawable.setAlpha(mEnabled ? 255 : 40);
         mRgbIconDrawable.draw(canvas);
         mTextPaint.setAlpha(mEnabled ? 255 : 40);
@@ -145,23 +149,31 @@ public class RgbLedButton extends View {
                     mColorHue = (float)Math.atan2((double)normalizedY, (double)normalizedX);
                     mColorHue = (mColorHue + (float)Math.PI) / (2.0f * (float)Math.PI);
                     mColorIntensity = (float)Math.sqrt(Math.pow((double) normalizedX, 2.0) + Math.pow((double) normalizedY, 2.0));
-                    mColorIntensity *= (1 / 0.89f);
-                    if(mColorIntensity <= 1.0f) {
-                        mColorIntensity = (mColorIntensity < 0.2f ? 0.0f : (mColorIntensity - 0.2f) * 1.25f);
-                        mRgbSelectorX = rgbSelX;
-                        mRgbSelectorY = rgbSelY;
-                        if(mRgbChangedListener != null){
-                            float []hsv = new float[3];
-                            hsv[0] = 360.0f - mColorHue * 360.0f + 90.0f;
-                            if(hsv[0] > 360.0f) hsv[0] -= 360.0f;
+                    mColorIntensity /= 0.89f;
+                    if(mColorIntensity > 1.0f) mColorIntensity = 1.0f;
+                    mColorIntensity = (mColorIntensity < 0.2f ? 0.0f : (mColorIntensity - 0.2f) * 1.25f);
+                    mRgbSelectorX = 0.5f - (float)Math.cos(mColorHue * 2.0 * Math.PI) * mColorIntensity * 0.5f;
+                    mRgbSelectorY = 0.5f - (float)Math.sin(mColorHue * 2.0 * Math.PI) * mColorIntensity * 0.5f;
+                    if(mRgbChangedListener != null){
+                        float []hsv = new float[3];
+                        hsv[0] = 360.0f - mColorHue * 360.0f + 90.0f;
+                        if (hsv[0] > 360.0f) hsv[0] -= 360.0f;
+                        if(true) {
+                            // Fade to white
+                            hsv[1] = mColorIntensity;
+                            hsv[2] = 1.0f;
+                        }
+                        else {
+                            // fade to black
                             hsv[1] = 1.0f;
                             hsv[2] = mColorIntensity;
-                            mSelectedColor = Color.HSVToColor(hsv);
-                            mRgbChangedListener.onRgbChanged(this, (float)((mSelectedColor >> 16) & 0xFF)/ 255.0f, (float)((mSelectedColor >> 8) & 0xFF)/ 255.0f, (float)((mSelectedColor >> 0) & 0xFF)/ 255.0f);
                         }
-                        setRgbSelectorPosition();
-                        invalidate();
+
+                        mSelectedColor = Color.HSVToColor(hsv);
+                        mRgbChangedListener.onRgbChanged(this, (float)((mSelectedColor >> 16) & 0xFF)/ 255.0f, (float)((mSelectedColor >> 8) & 0xFF)/ 255.0f, (float)((mSelectedColor >> 0) & 0xFF)/ 255.0f);
                     }
+                    setRgbSelectorPosition();
+                    invalidate();
                     Log.d("RgbDemo", String.valueOf(mColorHue) + ", " + String.valueOf(mColorIntensity));
                     return true;
                 }
