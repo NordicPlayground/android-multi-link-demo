@@ -64,7 +64,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private LedButtonService    mService = null;
     private BluetoothDevice     mDevice = null;
     private BluetoothAdapter    mBtAdapter = null;
-    private Button              btnConnectDisconnect, btnTest;
+    private Button              btnConnectDisconnect, mBtnDisconnectAllPeripherals, mBtnSelNone;
     private IntensityLedButton  mButtonIntensity;
     private RgbLedButton        mButtonRgb;
     private BleLinkManager      mBleLinkManager;
@@ -83,9 +83,11 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         }
         mBleLinkManager = new BleLinkManager(getApplicationContext());
         btnConnectDisconnect    = (Button) findViewById(R.id.btn_select);
-        btnTest = (Button)findViewById(R.id.btnTest);
+        mBtnDisconnectAllPeripherals = (Button)findViewById(R.id.buttonDisconnectAll);
+        mBtnSelNone             = (Button)findViewById(R.id.buttonDeselectAll);
         mButtonIntensity = (IntensityLedButton)findViewById(R.id.intensityLedButton1);
         mButtonRgb = (RgbLedButton)findViewById(R.id.rgbLedButton1);
+        mButtonRgb.setEnabled(false);
         mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
         mBleDeviceListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -138,17 +140,17 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
             }
         });
 
-        btnTest.setOnClickListener(new View.OnClickListener() {
+        mBtnDisconnectAllPeripherals.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                //Disconnect button pressed
+            public void onClick(View view) {
+                mBleLinkManager.disconnectAllPeripherals();
+            }
+        });
 
-                if (mService != null && mService.isConnected()) {
-                    //String testString = "JALLA!!";
-                    //mService.writeRXCharacteristic(testString.getBytes());
-                }
-                mBleLinkManager.addDebugItem();
-
+        mBtnSelNone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBleLinkManager.listDeselectAll();
             }
         });
     }
@@ -158,6 +160,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
             mService = ((LedButtonService.LocalBinder) rawBinder).getService();
             mBleLinkManager.setOutgoingService(mService);
+
             Log.d(TAG, "onServiceConnected mService= " + mService);
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -217,6 +220,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
                         btnConnectDisconnect.setText("Disconnect");
+                        mButtonIntensity.setEnabled(true);
+                        mButtonRgb.setEnabled(true);
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
                 });
@@ -229,6 +234,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_DISCONNECT_MSG");
                         btnConnectDisconnect.setText("Connect");
+                        mButtonIntensity.setEnabled(false);
+                        mButtonRgb.setEnabled(false);
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();

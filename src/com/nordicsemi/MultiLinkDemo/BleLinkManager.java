@@ -27,7 +27,7 @@ public class BleLinkManager {
     private LedButtonService        mService;
     private float                   mSelColorR = 1.0f, mSelColorG = 1.0f, mSelColorB = 1.0f, mSelColorInt = 1.0f;
 
-    private enum BLE_TX_COMMANDS {INVALID, LINK_CONNECTED, LINK_DISCONNECTED, LINK_DATA_UPDATE};
+    private enum BLE_TX_COMMANDS {INVALID, LINK_CONNECTED, LINK_DISCONNECTED, LINK_DATA_UPDATE, LED_BUTTON_PRESSED};
 
     public BleLinkManager(Context appContext){
         ArrayList<BleDevice> bleDeviceList = new ArrayList<BleDevice>();
@@ -45,29 +45,28 @@ public class BleLinkManager {
         }
         Log.d("BleLinkManager", "New packet: " + hexString);
 
-        int connHandle;
-        if(packet.length >= 3){
+        int connHandle = 0xFFFF;
+        if(packet.length >= 3) {
             connHandle = packet[1] << 8 | packet[2];
-            switch(BLE_TX_COMMANDS.values()[packet[0]]){
-                // Device connected
-                case LINK_CONNECTED:
-                    String deviceName;
-                    if(packet.length > 4){
-                        deviceName = new String(Arrays.copyOfRange(packet, 4, packet.length - 4));
-                    }
-                    else deviceName = "No name";
-                    addBleDevice(connHandle, (int)packet[3], deviceName);
-                    break;
-                // Device disconnected
-                case LINK_DISCONNECTED:
-                    removeBleDevice(connHandle);
-                    break;
-                // Data update received
-                case LINK_DATA_UPDATE:
-                    Log.d("BleLinkManager", "Data updated");
-                    bleDeviceDataUpdate(connHandle, Arrays.copyOfRange(packet, 4, 4 + packet[3]));
-                    break;
-            }
+        }
+        switch(BLE_TX_COMMANDS.values()[packet[0]]){
+            // Device connected
+            case LINK_CONNECTED:
+                addBleDevice(connHandle, Arrays.copyOfRange(packet, 3, packet.length));
+                break;
+            // Device disconnected
+            case LINK_DISCONNECTED:
+                removeBleDevice(connHandle);
+                break;
+            // Data update received
+            case LINK_DATA_UPDATE:
+                Log.d("BleLinkManager", "Data updated");
+                bleDeviceDataUpdate(connHandle, Arrays.copyOfRange(packet, 4, 4 + packet[3]));
+                break;
+
+            case LED_BUTTON_PRESSED:
+                bleDevicesLedUpdate(packet[1]);
+                break;
         }
     }
 
@@ -76,23 +75,48 @@ public class BleLinkManager {
     }
 
     private enum OutgoingCommand {
-        ERROR, SetLedColorAll, SetLedStateAll, PostConnectMessage
+        ERROR, SetLedColorAll, SetLedStateAll, PostConnectMessage, DisconnectAllPeripherals
     }
 
     public void addDebugItem(){
         mBleListViewAdapter.add(new BleDevice());
     }
 
-    public void addBleDevice(int connHandle, int type, String deviceName){
+    public void addBleDevice(int connHandle, int type, int buttonState, int ledState, int rssi, String deviceName){
         BleDevice newBleDevice = new BleDevice(connHandle, type);
         newBleDevice.setName(deviceName);
+        newBleDevice.ButtonState = (buttonState != 0);
+        newBleDevice.setColorIntensity((ledState != 0) ? 1.0f : 0.0f);
+        newBleDevice.setRssi(rssi);
         mBleListViewAdapter.add(newBleDevice);
 
         // Send welcome message to the new device
-        byte []newCmd = new byte[2];
+        /*byte []newCmd = new byte[2];
         newCmd[0] = (byte)OutgoingCommand.PostConnectMessage.ordinal();
         newCmd[1] = (byte)connHandle;
-        sendOutgoingCommand(newCmd);
+        sendOutgoingCommand(newCmd);*/
+    }
+
+    public void addBleDevice(int connHandle, byte []bleDeviceData){
+        String deviceName;
+        if(bleDeviceData.length > 4){
+            deviceName = new String(Arrays.copyOfRange(bleDeviceData, 4, bleDeviceData.length));
+        }
+        else deviceName = "No name";
+
+        BleDevice newBleDevice = new BleDevice(connHandle, bleDeviceData[0]);
+        newBleDevice.setName(deviceName);
+        newBleDevice.ButtonState = (bleDeviceData[1] != 0);
+        newBleDevice.setColorIntensity((bleDeviceData[2] != 0) ? 1.0f : 0.0f);
+        newBleDevice.setRssi((int)bleDeviceData[3]);
+        newBleDevice.setPhy((int)bleDeviceData[4]);
+        mBleListViewAdapter.add(newBleDevice);
+
+        // Send welcome message to the new device
+        /*byte []newCmd = new byte[2];
+        newCmd[0] = (byte)OutgoingCommand.PostConnectMessage.ordinal();
+        newCmd[1] = (byte)connHandle;
+        sendOutgoingCommand(newCmd);*/
     }
 
     public void removeBleDevice(int connHandle){
@@ -103,8 +127,17 @@ public class BleLinkManager {
         BleDevice updatedDevice = mBleListViewAdapter.findByConnHandle(connHandle);
         if(updatedDevice != null && data.length >= 1) {
             updatedDevice.ButtonState = (data[0] != 0);
+            updatedDevice.setPhy((int)data[1]);
+            updatedDevice.setRssi((int)data[2]);
             mBleListViewAdapter.notifyDataChanged();
         }
+    }
+
+    public void bleDevicesLedUpdate(int ledState){
+        for(int i = 0; i < mBleListViewAdapter.getCount(); i++){
+            ((BleDevice)mBleListViewAdapter.getItem(i)).setColorIntensity((ledState != 0) ? 1.0f : 0.0f);
+        }
+        mBleListViewAdapter.notifyDataChanged();
     }
 
     private void sendOutgoingCommand(byte []command){
@@ -186,6 +219,26 @@ public class BleLinkManager {
         sendColorAll(true, selectedConnIDs);
     }
 
+    public void listSelectAll(){
+        for(int i = 0; i < mBleListViewAdapter.getCount(); i++) {
+            ((BleDevice)mBleListViewAdapter.getItem(i)).Checked = true;
+        }
+        mBleListViewAdapter.notifyDataChanged();
+    }
+
+    public void listDeselectAll(){
+        for(int i = 0; i < mBleListViewAdapter.getCount(); i++) {
+            ((BleDevice)mBleListViewAdapter.getItem(i)).Checked = false;
+        }
+        mBleListViewAdapter.notifyDataChanged();
+    }
+
+    public void disconnectAllPeripherals(){
+        byte []newCmd = new byte[1];
+        newCmd[0] = (byte)OutgoingCommand.DisconnectAllPeripherals.ordinal();
+        sendOutgoingCommand(newCmd);
+    }
+
     public void itemClicked(int index){
         if(index < mBleListViewAdapter.getCount()) {
             BleDevice bleDevice = (BleDevice)mBleListViewAdapter.getItem(index);
@@ -199,14 +252,17 @@ public class BleLinkManager {
     }
 
     private class BleDevice{
-        private String mName;
-        public boolean ButtonState;
-        private int    mColor;
-        private float  []mBaseColors = {1.0f, 1.0f, 1.0f};
-        private float  mColorIntensity = 1.0f;
-        public boolean Checked;
-        private int    mType;
-        private int    mConnHandle;
+        private String  mName;
+        public boolean  ButtonState;
+        private int     mColor;
+        private float   []mBaseColors = {1.0f, 1.0f, 1.0f};
+        private float   mColorIntensity = 1.0f;
+        private boolean mRgbLedSupported = false;
+        public boolean  Checked;
+        private int     mType;
+        private int     mConnHandle;
+        private int     mPhy;
+        private int     mRssi;
 
         public BleDevice(){
             mName = "Noname";
@@ -218,10 +274,13 @@ public class BleLinkManager {
         public BleDevice(int connHandle, int type){
             mConnHandle = connHandle;
             mType = type;
+            mRgbLedSupported = (type == 2);
             mName = "Noname";
             ButtonState = false;
             Checked = false;
             mColor = 0xFFFFFFFF;
+            mPhy = 1;
+            mRssi = 0;
         }
 
         public void setName(String name){
@@ -247,9 +306,9 @@ public class BleLinkManager {
         public int getColor(){ return mColor; }
 
         public void setColor(float r, float g, float b){
-            mBaseColors[0] = r;
-            mBaseColors[1] = g;
-            mBaseColors[2] = b;
+            mBaseColors[0] = mRgbLedSupported ? r : 1.0f;
+            mBaseColors[1] = mRgbLedSupported ? g : 1.0f;
+            mBaseColors[2] = mRgbLedSupported ? b : 1.0f;
             mColor = (int)((mBaseColors[0] * mColorIntensity) * 255.0f);
             mColor = (int)((mBaseColors[1] * mColorIntensity) * 255.0f) | mColor << 8;
             mColor = (int)((mBaseColors[2] * mColorIntensity) * 255.0f) | mColor << 8;
@@ -263,6 +322,14 @@ public class BleLinkManager {
             mColor = (int)((mBaseColors[2] * mColorIntensity) * 255.0f) | mColor << 8;
             mColor |= 0xFF000000;
         }
+
+        public void setPhy(int phy) { mPhy = phy; }
+
+        public int getPhy(){ return mPhy; }
+
+        public void setRssi(int rssi){ mRssi = rssi; }
+
+        public int getRssi(){ return mRssi; }
     }
 
     private class BleListViewAdapter extends ArrayAdapter {
@@ -340,6 +407,12 @@ public class BleLinkManager {
                 ((ColorDrawable)ledStateBackground).setColor(currentDevice.getColor());
             }
 
+            String []phyList = {"Invalid!", "1Mbps", "2Mbps", "Invalid!", "Coded"};
+            TextView phyStateText = (TextView)convertView.findViewById(R.id.phyState);
+            phyStateText.setText(phyList[currentDevice.getPhy()]);
+
+            TextView rssiStateText = (TextView)convertView.findViewById(R.id.rssiState);
+            rssiStateText.setText(String.valueOf(currentDevice.getRssi()) + " dBm");
             return convertView;
         }
     }

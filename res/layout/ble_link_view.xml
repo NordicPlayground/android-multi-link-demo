@@ -25,7 +25,7 @@
     <TextView
         android:id="@+id/nameLabel"
         android:textAppearance="@style/FontBleDeviceLabel"
-        android:layout_width="80dp"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/img_type"
@@ -64,7 +64,7 @@
     <TextView
         android:id="@+id/btnStateLabel"
         android:textAppearance="@style/FontBleDeviceLabel"
-        android:layout_width="65dp"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/connHandleLabel"
         android:padding="2dp"
@@ -83,7 +83,7 @@
     <TextView
         android:id="@+id/ledStateLabel"
         android:textAppearance="@style/FontBleDeviceLabel"
-        android:layout_width="60dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/btnStateLabel"
         android:padding="2dp"
@@ -99,4 +99,41 @@
         android:padding="2dp"
         android:background="@drawable/led_status_box"/>
 
+    <TextView
+        android:id="@+id/phyStateLabel"
+        android:textAppearance="@style/FontBleDeviceLabel"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/ledStateLabel"
+        android:padding="2dp"
+        android:text="Phy" />
+
+    <TextView
+        android:id="@+id/phyState"
+        android:textAppearance="@style/FontBleDeviceField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/phyStateLabel"
+        android:layout_alignLeft="@id/phyStateLabel"
+        android:padding="2dp"
+        android:text="1Mbps" />
+
+    <TextView
+        android:id="@+id/rssiStateLabel"
+        android:textAppearance="@style/FontBleDeviceLabel"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/phyStateLabel"
+        android:padding="2dp"
+        android:text="RSSI" />
+
+    <TextView
+        android:id="@+id/rssiState"
+        android:textAppearance="@style/FontBleDeviceField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rssiStateLabel"
+        android:layout_alignLeft="@id/rssiStateLabel"
+        android:padding="2dp"
+        android:text="-" />
 </RelativeLayout>
