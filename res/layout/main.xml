@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#FF999999">
+    android:background="#FFFFFFFF">
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -17,29 +17,39 @@
 
         <Button
             android:id="@+id/btn_select"
+            style="@android:style/Widget.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_weight="10"
-            android:padding="12dp"
             android:text="Connect" />
 
         <Button
             android:id="@+id/buttonDeselectAll"
+            style="@android:style/Widget.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="10"
             android:text="Deselect all"
-            android:layout_weight="10"/>
+            android:enabled="false"/>
 
         <Button
             android:id="@+id/buttonDisconnectAll"
+            style="@android:style/Widget.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="10"
             android:text="Disconnect all"
-            android:layout_weight="10"/>
+            android:enabled="false"/>
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageViewDiv1"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/whitegrey"/>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/linearLayoutMain"
@@ -54,15 +64,30 @@
             android:id="@+id/listViewBleDevice"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textViewStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_horizontal"
+        android:enabled="false"
+        android:text="Connected Devices: 0"
+        android:textAlignment="center" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/whitegrey"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal">
-
-
 
     </LinearLayout>
 

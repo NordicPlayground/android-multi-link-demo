@@ -45,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements RadioGroup.OnCheckedChangeListener {
@@ -67,6 +68,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private Button              btnConnectDisconnect, mBtnDisconnectAllPeripherals, mBtnSelNone;
     private IntensityLedButton  mButtonIntensity;
     private RgbLedButton        mButtonRgb;
+    private TextView            mStatusText;
     private BleLinkManager      mBleLinkManager;
 
     int index = 0;
@@ -88,6 +90,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         mButtonIntensity = (IntensityLedButton)findViewById(R.id.intensityLedButton1);
         mButtonRgb = (RgbLedButton)findViewById(R.id.rgbLedButton1);
         mButtonRgb.setEnabled(false);
+        mStatusText = (TextView)findViewById(R.id.textViewStatus);
         mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
         mBleDeviceListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -119,7 +122,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                     } else {
                         //Disconnect button pressed
                         if (mDevice != null) {
-                            mService.disconnect();
+                            mBleLinkManager.disconnectCentral();
+                            //mService.disconnect();
                         }
                     }
                 }
@@ -151,6 +155,13 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
             @Override
             public void onClick(View view) {
                 mBleLinkManager.listDeselectAll();
+            }
+        });
+
+        mBleLinkManager.setBleLinkListener(new BleLinkManager.BleLinkListener() {
+            @Override
+            public void onListChanged() {
+                mStatusText.setText("Connected Devices: " + String.valueOf(mBleLinkManager.getNumberOfLinks()));
             }
         });
     }
@@ -222,6 +233,9 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         btnConnectDisconnect.setText("Disconnect");
                         mButtonIntensity.setEnabled(true);
                         mButtonRgb.setEnabled(true);
+                        mBtnDisconnectAllPeripherals.setEnabled(true);
+                        mBtnSelNone.setEnabled(true);
+                        mStatusText.setEnabled(true);
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
                 });
@@ -236,6 +250,10 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         btnConnectDisconnect.setText("Connect");
                         mButtonIntensity.setEnabled(false);
                         mButtonRgb.setEnabled(false);
+                        mBtnDisconnectAllPeripherals.setEnabled(false);
+                        mBtnSelNone.setEnabled(false);
+                        mStatusText.setEnabled(false);
+                        mStatusText.setText("Connected Devices: 0");
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();

@@ -29,9 +29,22 @@ public class BleLinkManager {
 
     private enum BLE_TX_COMMANDS {INVALID, LINK_CONNECTED, LINK_DISCONNECTED, LINK_DATA_UPDATE, LED_BUTTON_PRESSED};
 
+    public interface BleLinkListener {
+        public void onListChanged();
+    }
+    private BleLinkListener mListener = null;
+
     public BleLinkManager(Context appContext){
         ArrayList<BleDevice> bleDeviceList = new ArrayList<BleDevice>();
         mBleListViewAdapter = new BleListViewAdapter(appContext, bleDeviceList);
+    }
+
+    public void setBleLinkListener(BleLinkListener listener){
+        mListener = listener;
+    }
+
+    public int getNumberOfLinks(){
+        return mBleListViewAdapter.getCount();
     }
 
     public void setOutgoingService(LedButtonService service){
@@ -53,10 +66,16 @@ public class BleLinkManager {
             // Device connected
             case LINK_CONNECTED:
                 addBleDevice(connHandle, Arrays.copyOfRange(packet, 3, packet.length));
+                if(mListener != null){
+                    mListener.onListChanged();
+                }
                 break;
             // Device disconnected
             case LINK_DISCONNECTED:
                 removeBleDevice(connHandle);
+                if(mListener != null){
+                    mListener.onListChanged();
+                }
                 break;
             // Data update received
             case LINK_DATA_UPDATE:
@@ -75,7 +94,7 @@ public class BleLinkManager {
     }
 
     private enum OutgoingCommand {
-        ERROR, SetLedColorAll, SetLedStateAll, PostConnectMessage, DisconnectAllPeripherals
+        ERROR, SetLedColorAll, SetLedStateAll, PostConnectMessage, DisconnectAllPeripherals, DisconnectCentral
     }
 
     public void addDebugItem(){
@@ -236,6 +255,12 @@ public class BleLinkManager {
     public void disconnectAllPeripherals(){
         byte []newCmd = new byte[1];
         newCmd[0] = (byte)OutgoingCommand.DisconnectAllPeripherals.ordinal();
+        sendOutgoingCommand(newCmd);
+    }
+
+    public void disconnectCentral(){
+        byte []newCmd = new byte[1];
+        newCmd[0] = (byte)OutgoingCommand.DisconnectCentral.ordinal();
         sendOutgoingCommand(newCmd);
     }
 
