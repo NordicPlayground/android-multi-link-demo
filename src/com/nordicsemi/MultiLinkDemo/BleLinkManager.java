@@ -205,6 +205,13 @@ public class BleLinkManager {
         return mask;
     }
 
+    private boolean currentState = false;
+    public boolean toggleLedStateIntensityAll(float intensity){
+        currentState = !currentState;
+        setLedStateIntensityAll(currentState, intensity);
+        return currentState;
+    }
+
     public void setLedStateIntensityAll(boolean state, float intensity){
         int deviceMask = getConnIdSelectedMask();
         BleDevice bleDevice;

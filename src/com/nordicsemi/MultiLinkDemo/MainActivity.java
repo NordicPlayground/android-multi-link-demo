@@ -43,6 +43,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -66,8 +67,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private BluetoothDevice     mDevice = null;
     private BluetoothAdapter    mBtAdapter = null;
     private Button              btnConnectDisconnect, mBtnDisconnectAllPeripherals, mBtnSelNone;
-    private IntensityLedButton  mButtonIntensity;
-    private RgbLedButton        mButtonRgb;
+    private ImageButton         mBtnLedOnOff;
     private TextView            mStatusText;
     private BleLinkManager      mBleLinkManager;
 
@@ -87,9 +87,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         btnConnectDisconnect    = (Button) findViewById(R.id.btn_select);
         mBtnDisconnectAllPeripherals = (Button)findViewById(R.id.buttonDisconnectAll);
         mBtnSelNone             = (Button)findViewById(R.id.buttonDeselectAll);
-        mButtonIntensity = (IntensityLedButton)findViewById(R.id.intensityLedButton1);
-        mButtonRgb = (RgbLedButton)findViewById(R.id.rgbLedButton1);
-        mButtonRgb.setEnabled(false);
+        mBtnLedOnOff            = (ImageButton)findViewById(R.id.button_led_on_off);
+        mBtnLedOnOff.setEnabled(false);
         mStatusText = (TextView)findViewById(R.id.textViewStatus);
         mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
@@ -130,19 +129,27 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
             }
         });
 
-        mButtonIntensity.setLedChangedListener(new IntensityLedButton.OnLedChangeListener() {
+        mBtnLedOnOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBtnLedOnOff.setSelected(mBleLinkManager.toggleLedStateIntensityAll(1.0f));
+            }
+        });
+
+        /*mButtonIntensity.setLedChangedListener(new IntensityLedButton.OnLedChangeListener() {
             @Override
             public void onIntensityChanged(IntensityLedButton sender, boolean ledOn, float ledIntensity) {
                 mBleLinkManager.setLedStateIntensityAll(ledOn, ledIntensity);
             }
         });
 
+
         mButtonRgb.setRgbChangedListener(new RgbLedButton.OnRgbChangedListener() {
             @Override
             public void onRgbChanged(RgbLedButton sender, float r, float g, float b) {
                 mBleLinkManager.setLedRgbAll(r, g, b);
             }
-        });
+        });*/
 
         mBtnDisconnectAllPeripherals.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,11 +238,10 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
                         btnConnectDisconnect.setText("Disconnect");
-                        mButtonIntensity.setEnabled(true);
-                        mButtonRgb.setEnabled(true);
                         mBtnDisconnectAllPeripherals.setEnabled(true);
                         mBtnSelNone.setEnabled(true);
                         mStatusText.setEnabled(true);
+                        mBtnLedOnOff.setEnabled(true);
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
                 });
@@ -248,11 +254,10 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_DISCONNECT_MSG");
                         btnConnectDisconnect.setText("Connect");
-                        mButtonIntensity.setEnabled(false);
-                        mButtonRgb.setEnabled(false);
                         mBtnDisconnectAllPeripherals.setEnabled(false);
                         mBtnSelNone.setEnabled(false);
                         mStatusText.setEnabled(false);
+                        mBtnLedOnOff.setEnabled(false);
                         mStatusText.setText("Connected Devices: 0");
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;

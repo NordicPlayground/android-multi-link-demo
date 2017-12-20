@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res/com.nordicsemi.MultiLinkDemo"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#FFFFFFFF">
 
@@ -91,36 +90,45 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="160dp"
         android:layout_gravity="bottom"
         android:orientation="horizontal">
 
-        <com.nordicsemi.MultiLinkDemo.gui.RgbLedButton
-            android:id="@+id/rgbLedButton1"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            app:enabled="false"
-            app:rgbicon_drawable="@drawable/rgb_wheel_white"
-            app:rgbselector_drawable="@drawable/rgb_selector"
+        <ImageButton
+            android:id="@+id/button_led_on_off"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/led_on_button_selector" />
 
-            app:rbgselector_size="20dp"
-            app:text=""
-            app:textHeight="3dp"
-            android:padding="10dp"/>
+        <SeekBar
+            android:id="@+id/seekbar_hue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/button_led_on_off"
+            android:layout_weight="1"
+            android:paddingLeft="15dp"
+            android:paddingTop="10dp"
+            android:progressDrawable="@drawable/slider_track_rgb" />
 
-        <com.nordicsemi.MultiLinkDemo.gui.IntensityLedButton
-            android:id="@+id/intensityLedButton1"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            app:enabled="false"
-            app:backgroundDrawable="@drawable/intensitybtn_bck"
-            app:buttonOffDrawable="@drawable/intensitybtn_led_off"
-            app:buttonOnDrawable="@drawable/intensitybtn_led_on"
-            app:intensitySelectorDrawable="@drawable/intensitybtn_selector"
-            app:intensitySelectorWidth="0.15"
-            android:padding="1dp"/>
+        <SeekBar
+            android:id="@+id/seekbar_intensity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/seekbar_hue"
+            android:layout_marginRight="20dp"
+            android:layout_toRightOf="@id/button_led_on_off"
+            android:layout_weight="1"
+            android:paddingLeft="15dp"
+            android:paddingTop="10dp"
+            android:progressDrawable="@drawable/slider_track_int" />
 
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>
