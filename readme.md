@@ -1,8 +1,6 @@
-# android-intensity-light-control
+# android-multi-link-demo
 
-This app is based on the nRF Uart app, using a similar service with a randomized UUID, and allows the user to control the intensity and state of an LED on the connected device from the app. 
-
-Rather than having to send string commands a custom GUI element is used to turn on/off the LED, and set the light intensity.  
+This app is designed to be used with the [nrf52-multi-link-multi-role example](https://github.com/NordicPlayground/nrf52-ble-multi-link-multi-role), and will act as a controller for the multi link aggregator. 
 
 This source code can be compiled with Android Studio and Gradle. 
 
