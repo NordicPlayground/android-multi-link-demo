@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -46,6 +47,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +70,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private BluetoothAdapter    mBtAdapter = null;
     private Button              btnConnectDisconnect, mBtnDisconnectAllPeripherals, mBtnSelNone;
     private ImageButton         mBtnLedOnOff;
+    private SeekBar             mSeekBarHue, mSeekBarIntensity;
     private TextView            mStatusText;
     private BleLinkManager      mBleLinkManager;
 
@@ -89,6 +92,11 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         mBtnSelNone             = (Button)findViewById(R.id.buttonDeselectAll);
         mBtnLedOnOff            = (ImageButton)findViewById(R.id.button_led_on_off);
         mBtnLedOnOff.setEnabled(false);
+        mBtnLedOnOff.setSelected(true);
+        mSeekBarHue             = (SeekBar)findViewById(R.id.seekbar_hue);
+        mSeekBarHue.setEnabled(false);
+        mSeekBarIntensity       = (SeekBar)findViewById(R.id.seekbar_intensity);
+        mSeekBarIntensity.setEnabled(false);
         mStatusText = (TextView)findViewById(R.id.textViewStatus);
         mBleDeviceListView = (ListView)findViewById(R.id.listViewBleDevice);
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
@@ -132,7 +140,43 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         mBtnLedOnOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBtnLedOnOff.setSelected(mBleLinkManager.toggleLedStateIntensityAll(1.0f));
+                boolean mLedStateOn = mBleLinkManager.toggleLedStateIntensityAll(1.0f);
+                mBtnLedOnOff.setSelected(mLedStateOn);
+                mSeekBarHue.setEnabled(mLedStateOn);
+                mSeekBarIntensity.setEnabled(mLedStateOn);
+            }
+        });
+
+        mSeekBarHue.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                updateHueIntensity();
+            }
+        });
+
+        mSeekBarIntensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                updateHueIntensity();
             }
         });
 
@@ -171,6 +215,11 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                 mStatusText.setText("Connected Devices: " + String.valueOf(mBleLinkManager.getNumberOfLinks()));
             }
         });
+    }
+
+    private void updateHueIntensity(){
+        float []hsv = new float[]{360.0f - (float)mSeekBarHue.getProgress(), 1.0f, (float)mSeekBarIntensity.getProgress() / 100.0f};
+        mBleLinkManager.setLedRgbAll(Color.HSVToColor(hsv));
     }
 
     //UART service connected/disconnected
@@ -242,6 +291,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         mBtnSelNone.setEnabled(true);
                         mStatusText.setEnabled(true);
                         mBtnLedOnOff.setEnabled(true);
+                        mSeekBarHue.setEnabled(true);
+                        mSeekBarIntensity.setEnabled(true);
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
                 });
@@ -258,6 +309,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         mBtnSelNone.setEnabled(false);
                         mStatusText.setEnabled(false);
                         mBtnLedOnOff.setEnabled(false);
+                        mSeekBarHue.setEnabled(false);
+                        mSeekBarIntensity.setEnabled(false);
                         mStatusText.setText("Connected Devices: 0");
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;

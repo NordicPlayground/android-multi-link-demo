@@ -108,6 +108,8 @@
 
         <SeekBar
             android:id="@+id/seekbar_hue"
+            android:max="360"
+            android:progress="0"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="20dp"
@@ -120,10 +122,13 @@
 
         <SeekBar
             android:id="@+id/seekbar_intensity"
+            android:max="100"
+            android:progress="100"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/seekbar_hue"
             android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
             android:layout_toRightOf="@id/button_led_on_off"
             android:layout_weight="1"
             android:paddingLeft="15dp"

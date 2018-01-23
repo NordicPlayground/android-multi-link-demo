@@ -229,7 +229,7 @@ public class BleLinkManager {
         return mask;
     }
 
-    private boolean currentState = false;
+    private boolean currentState = true;
     public boolean toggleLedStateIntensityAll(float intensity){
         currentState = !currentState;
         setLedStateIntensityAll(currentState, intensity);
@@ -267,6 +267,10 @@ public class BleLinkManager {
         }
         mBleListViewAdapter.notifyDataChanged();
         sendColorAll(true, selectedConnIDs);
+    }
+
+    public void setLedRgbAll(int color){
+        setLedRgbAll((float)(color >> 16) / 255.0f, (float)((color >> 8) & 0xFF) / 255.0f, (float)((color >> 0) & 0xFF) / 255.0f);
     }
 
     public void listSelectAll(){
