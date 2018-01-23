@@ -2,6 +2,7 @@ package com.nordicsemi.MultiLinkDemo;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -478,11 +479,11 @@ public class BleLinkManager {
             // Change the color of the LED state drawable
             Drawable ledStateBackground = ((ImageView)convertView.findViewById(R.id.ledState)).getBackground();
             if (ledStateBackground instanceof ShapeDrawable) {
-                ((ShapeDrawable)ledStateBackground).getPaint().setColor(currentDevice.getColor());
+                ((ShapeDrawable)ledStateBackground).getPaint().setColor(currentDevice.LedState ? currentDevice.getColor() : Color.BLACK);
             } else if (ledStateBackground instanceof GradientDrawable) {
-                ((GradientDrawable)ledStateBackground).setColor(currentDevice.getColor());
+                ((GradientDrawable)ledStateBackground).setColor(currentDevice.LedState ? currentDevice.getColor() : Color.BLACK);
             } else if (ledStateBackground instanceof ColorDrawable) {
-                ((ColorDrawable)ledStateBackground).setColor(currentDevice.getColor());
+                ((ColorDrawable)ledStateBackground).setColor(currentDevice.LedState ? currentDevice.getColor() : Color.BLACK);
             }
 
             String []phyList = {"Invalid!", "1Mbps", "2Mbps", "Invalid!", "Coded"};
