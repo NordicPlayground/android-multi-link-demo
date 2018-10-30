@@ -120,24 +120,39 @@ public class BleLinkManager {
 
     public void addBleDevice(int connHandle, byte []bleDeviceData){
         String deviceName;
-        if(bleDeviceData.length > 4){
-            deviceName = new String(Arrays.copyOfRange(bleDeviceData, 4, bleDeviceData.length));
+        if(bleDeviceData.length > 7){
+            deviceName = new String(Arrays.copyOfRange(bleDeviceData, 7, bleDeviceData.length));
         }
         else deviceName = "No name";
 
-        BleDevice newBleDevice = new BleDevice(connHandle, bleDeviceData[0]);
+        BleDevice newBleDevice = null;
+        for(int i = 0; i < mBleListViewAdapter.getCount(); i++){
+            if(((BleDevice)mBleListViewAdapter.getItem(i)).getConnHandle() == connHandle)
+            {
+                newBleDevice = (BleDevice)mBleListViewAdapter.getItem(i);
+                break;
+            }
+        }
+        //TODO: Figure out why the BLE device can some times be found in the list (list should be cleared on disconnect)
+        boolean addNewDevice = false;
+        if(newBleDevice == null) {
+            newBleDevice = new BleDevice(connHandle, bleDeviceData[0]);
+            addNewDevice = true;
+        }
         newBleDevice.setName(deviceName);
         newBleDevice.ButtonState = (bleDeviceData[1] != 0);
         newBleDevice.setColorIntensity((bleDeviceData[2] != 0), 1.0f);
-        newBleDevice.setRssi((int)bleDeviceData[3]);
-        newBleDevice.setPhy((int)bleDeviceData[4]);
-        mBleListViewAdapter.add(newBleDevice);
+        newBleDevice.setColor(bleDeviceData[3], bleDeviceData[4], bleDeviceData[5]);
+        newBleDevice.setRssi((int) bleDeviceData[6]);
+        newBleDevice.setPhy((int) bleDeviceData[7]);
+        if(addNewDevice) mBleListViewAdapter.add(newBleDevice);
 
         // Send welcome message to the new device
         /*byte []newCmd = new byte[2];
         newCmd[0] = (byte)OutgoingCommand.PostConnectMessage.ordinal();
         newCmd[1] = (byte)connHandle;
         sendOutgoingCommand(newCmd);*/
+        mBleListViewAdapter.notifyDataChanged();
     }
 
     public void removeBleDevice(int connHandle){
@@ -309,6 +324,7 @@ public class BleLinkManager {
 
     public void clearBleDevices(){
         mBleListViewAdapter.clear();
+        mBleListViewAdapter.notifyDataChanged();
     }
 
     private class BleDevice{
@@ -376,6 +392,10 @@ public class BleLinkManager {
             mColor = (int)((mBaseColors[1] * mColorIntensity) * 255.0f) | mColor << 8;
             mColor = (int)((mBaseColors[2] * mColorIntensity) * 255.0f) | mColor << 8;
             mColor |= 0xFF000000;
+        }
+
+        public void setColor(byte r, byte g, byte b){
+            setColor((float)(Integer.valueOf(r & 0xFF)) / 255.0f, (float)(Integer.valueOf(g & 0xFF)) / 255.0f, (float)(Integer.valueOf(b & 0xFF)) / 255.0f);
         }
 
         public void setColorIntensity(boolean state, float intensity){
