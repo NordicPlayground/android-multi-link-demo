@@ -20,10 +20,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 
-import com.nordicsemi.MultiLinkDemo.gui.IntensityLedButton;
-import com.nordicsemi.MultiLinkDemo.gui.RgbLedButton;
-
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 
@@ -73,6 +71,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
     private SeekBar             mSeekBarHue, mSeekBarIntensity;
     private TextView            mStatusText;
     private BleLinkManager      mBleLinkManager;
+    private ProgressDialog      mConProgDialog;
 
     int index = 0;
     @Override
@@ -102,6 +101,9 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
         mBleDeviceListView.setAdapter(mBleLinkManager.getListAdapter());
         mBleDeviceListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         mBleDeviceListView.setItemsCanFocus(false);
+        mConProgDialog = new ProgressDialog(this);
+        mConProgDialog.setTitle("Connecting...");
+        mConProgDialog.setCancelable(false);
 
         mBleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -293,6 +295,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         mBtnLedOnOff.setEnabled(true);
                         mSeekBarHue.setEnabled(true);
                         mSeekBarIntensity.setEnabled(true);
+                        mConProgDialog.hide();
                         writeToLog("Connected", AppLogFontType.APP_NORMAL);
                     }
                 });
@@ -315,6 +318,7 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                         writeToLog("Disconnected", AppLogFontType.APP_NORMAL);
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
+                        mConProgDialog.hide();
                         mBleLinkManager.clearBleDevices();
                     }
                 });
@@ -431,6 +435,8 @@ public class MainActivity extends Activity implements RadioGroup.OnCheckedChange
                     Log.d(TAG, "... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
                     //((TextView) findViewById(R.id.deviceName)).setText(mDevice.getName()+ " - connecting");
                     mService.connect(deviceAddress);
+
+                    mConProgDialog.show();
                 }
                 break;
 
